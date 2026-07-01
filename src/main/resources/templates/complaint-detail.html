@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Complaint Detail - CMS</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background: #f4f6f8;
+			margin: 0;
+			padding: 30px;
+		}
+
+		.container {
+			max-width: 600px;
+			margin: auto;
+			background: white;
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h2 {
+			color: #1F3864;
+		}
+
+		.field {
+			margin-top: 14px;
+		}
+
+		.field label {
+			font-size: 13px;
+			color: #888;
+			display: block;
+		}
+
+		.field span {
+			font-size: 16px;
+		}
+
+		.status {
+			padding: 4px 10px;
+			border-radius: 12px;
+			font-size: 12px;
+			color: white;
+		}
+
+		.PENDING {
+			background: #d9534f;
+		}
+
+		.ASSIGNED {
+			background: #f0ad4e;
+		}
+
+		.COMPLETED {
+			background: #5cb85c;
+		}
+
+		.actions {
+			margin-top: 24px;
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 8px 14px;
+			border-radius: 4px;
+			text-decoration: none;
+			font-size: 14px;
+			border: none;
+			cursor: pointer;
+		}
+
+		.btn-primary {
+			background: #2E5C8A;
+			color: white;
+		}
+
+		.btn-danger {
+			background: #d9534f;
+			color: white;
+		}
+
+		select,
+		textarea {
+			width: 100%;
+			padding: 8px;
+			margin-top: 4px;
+			box-sizing: border-box;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+
+		textarea {
+			height: 70px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h2 th:text="${complaint.title}"></h2>
+
+		<p class="error" th:if="${error}" th:text="${error}" style="color:#d9534f;"></p>
+
+		<div class="field">
+			<label>Description</label>
+			<span th:text="${complaint.description}"></span>
+		</div>
+
+		<div class="field">
+			<label>Status</label>
+			<span class="status" th:classappend="${complaint.status}" th:text="${complaint.status}"></span>
+		</div>
+
+		<div class="field" th:if="${session.loggedInUser != null and session.loggedInUser.role != 'CUSTOMER'}">
+			<label>Remarks</label>
+			<span th:text="${complaint.remarks} ?: 'No remarks yet'"></span>
+		</div>
+		<div class="field" th:if="${session.loggedInUser != null and session.loggedInUser.role == 'CUSTOMER'}">
+			<label>Add / Update Your Comment</label>
+			<form th:action="@{/complaints/{id}/comment(id=${complaint.id})}" method="post">
+				<textarea name="remarks" th:text="${complaint.remarks} ?: ''"
+					style="width:100%; height:70px; padding:8px; border:1px solid #ccc; border-radius:4px; margin-top:4px;">
+		        </textarea>
+				<button type="submit" class="btn btn-primary" style="margin-top:8px;">
+					Save Comment
+				</button>
+			</form>
+		</div>
+		<div class="field" th:if="${complaint.feedback != null}">
+			<label>Customer Feedback</label>
+			<span th:text="${complaint.feedback}"></span>
+		</div>
+		<div class="field" th:if="${session.loggedInUser != null 
+		             and session.loggedInUser.role == 'CUSTOMER' 
+		             and complaint.status == 'COMPLETED'}">
+			<label>Give Feedback</label>
+			<form th:action="@{/complaints/{id}/feedback(id=${complaint.id})}" method="post">
+				<textarea name="feedback" th:text="${complaint.feedback} ?: ''"
+					placeholder="How was your experience? Was the complaint resolved satisfactorily?"
+					style="width:100%; height:70px; padding:8px; border:1px solid #ccc; border-radius:4px; margin-top:4px;">
+		        </textarea>
+				<button type="submit" class="btn btn-primary" style="margin-top:8px;">
+					Submit Feedback
+				</button>
+			</form>
+		</div>
+
+
+		<div class="field" th:if="${complaint.assignedEmployee != null}">
+			<label>Assigned Employee</label>
+			<span th:text="${complaint.assignedEmployee.name}"></span>
+		</div>
+
+		<div class="field">
+			<label>Created</label>
+			<span th:text="${#temporals.format(complaint.createdDate, 'dd-MM-yyyy HH:mm')}"></span>
+		</div>
+
+		<!-- Update status + remarks (Employee action) -->
+		<form
+			th:if="${session.loggedInUser != null and (session.loggedInUser.role == 'EMPLOYEE' or session.loggedInUser.role == 'ADMIN')}"
+			th:action="@{/complaints/{id}/status(id=${complaint.id})}" method="post" class="field">
+			<label>Update Status</label>
+			<select name="status" th:value="${complaint.status}" th:disabled="${complaint.status == 'COMPLETED'}">
+				<option value="PENDING" th:selected="${complaint.status == 'PENDING'}">PENDING</option>
+				<option value="ASSIGNED" th:selected="${complaint.status == 'ASSIGNED'}">ASSIGNED</option>
+				<option value="COMPLETED" th:selected="${complaint.status == 'COMPLETED'}">COMPLETED</option>
+			</select>
+			<label>Remarks</label>
+			<textarea name="remarks" th:text="${complaint.remarks}" th:disabled="${complaint.status == 'COMPLETED'}">
+			</textarea>
+			<button type="submit" class="btn btn-primary" style="margin-top:10px;"
+				th:if="${complaint.status != 'COMPLETED'}">
+				Update Status
+			</button>
+			<button type="submit" class="btn btn-warning" th:if="${complaint.status == 'COMPLETED'
+			            and session.loggedInUser.role == 'ADMIN'}" th:formaction="@{/complaints/{id}/reopen(id=${complaint.id})}">
+				Re-open Complaint
+			</button>
+
+		</form>
+
+		<div class="actions" th:if="${session.loggedInUser != null and session.loggedInUser.role == 'ADMIN'}">
+			<a class="btn btn-primary" th:if="${complaint.status != 'COMPLETED'}"
+				th:href="@{/complaints/{id}/edit(id=${complaint.id})}">
+				Edit
+			</a>
+
+			<a class="btn btn-primary" th:if="${complaint.status != 'COMPLETED'}"
+				th:href="@{/assignation/{id}(id=${complaint.id})}">
+				Assign
+			</a>
+			<form th:action="@{/complaints/{id}/delete(id=${complaint.id})}" method="post" style="display:inline;">
+				<button type="submit" class="btn btn-danger"
+					onclick="return confirm('Delete this complaint?')">Delete</button>
+			</form>
+		</div>
+
+		<p style="margin-top:20px;"><a th:href="@{/complaints}">&larr; Back to all complaints</a></p>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Complaint Form - CMS</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background: #f4f6f8;
+			margin: 0;
+			padding: 30px;
+		}
+
+		.container {
+			max-width: 500px;
+			margin: auto;
+			background: white;
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h2 {
+			color: #1F3864;
+		}
+
+		label {
+			display: block;
+			margin-top: 14px;
+			font-size: 14px;
+			color: #444;
+		}
+
+		input,
+		textarea,
+		select {
+			width: 100%;
+			padding: 8px;
+			margin-top: 4px;
+			box-sizing: border-box;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-family: Arial;
+		}
+
+		textarea {
+			height: 100px;
+			resize: vertical;
+		}
+
+		button {
+			padding: 10px 20px;
+			margin-top: 20px;
+			background: #2E5C8A;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.error {
+			color: #d9534f;
+			font-size: 13px;
+			margin-top: 4px;
+		}
+
+		a {
+			color: #2E5C8A;
+			text-decoration: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h2 th:text="${complaint.id} != null ? 'Edit Complaint' : 'New Complaint'"></h2>
+
+		<p class="error" th:if="${error}" th:text="${error}"></p>
+
+		<form th:action="${complaint.id} != null ? @{/complaints/{id}(id=${complaint.id})} : @{/complaints}"
+			th:object="${complaint}" method="post">
+
+			<label>Title</label>
+			<input type="text" th:field="*{title}">
+			<p class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+
+			<label>Description</label>
+			<textarea th:field="*{description}"></textarea>
+			<p class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+
+			<div th:if="${userRole == 'ADMIN'}">
+				<label>Status</label>
+				<select th:field="*{status}">
+					<option value="PENDING">PENDING</option>
+					<option value="ASSIGNED">ASSIGNED</option>
+					<option value="COMPLETED">COMPLETED</option>
+				</select>
+			</div>
+			
+			<input type="hidden" th:unless="${userRole == 'ADMIN'}" name="status" value="PENDING">
+			 
+
+			<button type="submit">Save Complaint</button>
+		</form>
+
+		<p><a th:href="@{/complaints}">&larr; Back to all complaints</a></p>
+	</div>
+</body>
+
+</html>

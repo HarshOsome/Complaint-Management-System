@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - CMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 30px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #1F3864; }
+        .filter-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .filter-btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; border: none; cursor: pointer; }
+        .btn-pending { background: #d9534f; color: white; }
+        .btn-solved { background: #5cb85c; color: white; }
+        form.inline { display: flex; gap: 10px; align-items: center; margin-top: 20px; background: #f4f6f8; padding: 14px; border-radius: 6px; flex-wrap: wrap; }
+        input[type=date] { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type=number] { padding: 6px; border: 1px solid #ccc; border-radius: 4px; flex: 1; }
+        button { padding: 8px 14px; background: #2E5C8A; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .section-label { font-weight: bold; color: #444; margin-top: 20px; margin-bottom: 8px; font-size: 14px; }
+        a.back { color: #2E5C8A; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Generate Reports</h2>
+ 
+        <p class="section-label">Filter by Status</p>
+        <div class="filter-group">
+            <a class="filter-btn btn-pending" th:href="@{/reports/pending}">
+                📌 Pending Complaints
+            </a>
+            <a class="filter-btn btn-solved" th:href="@{/reports/solved}">
+                ✅ Solved Complaints
+            </a>
+        </div>
+ 
+        <p class="section-label">Filter by Date Range</p>
+        <form class="inline" th:action="@{/reports/date-range}" method="get">
+            <input type="date" name="startDate" required>
+            <span>to</span>
+            <input type="date" name="endDate" required>
+            <button type="submit">📅 Generate</button>
+        </form>
+ 
+        <p class="section-label">Filter by Customer</p>
+        <form class="inline" method="get"
+              onsubmit="this.action='/reports/user/' + document.getElementById('custId').value; return true;">
+            <input type="number" id="custId" placeholder="Enter Customer ID" required>
+            <button type="submit">👤 Generate</button>
+        </form>
+ 
+        <p style="margin-top:30px;">
+            <a class="back" th:href="@{/admin/dashboard}">&larr; Back to Dashboard</a>
+        </p>
+    </div>
+</body>
+</html>

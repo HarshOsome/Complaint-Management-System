@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - CMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 30px; }
+        .container { max-width: 900px; margin: auto; }
+        h2 { color: #1F3864; }
+        .stats { display: flex; gap: 16px; margin: 20px 0; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+        .stat-card .number { font-size: 32px; font-weight: bold; color: #2E5C8A; }
+        .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+        .nav-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; color: #1F3864; font-weight: bold; }
+        .nav-card:hover { background: #f0f4f8; }
+        .welcome { color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+        <p class="welcome">Welcome back, <span th:text="${user.name}"></span></p>
+ 
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" th:text="${totalComplaints}">0</div>
+                <div class="label">Total Complaints</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${pendingCount}">0</div>
+                <div class="label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${completedCount}">0</div>
+                <div class="label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${availableEmployeeCount}">0</div>
+                <div class="label">Employees Available</div>
+            </div>
+        </div>
+ 
+        <div class="nav-grid">
+            <a class="nav-card" th:href="@{/complaints}">📋 View All Complaints</a>
+            <a class="nav-card" th:href="@{/complaints/new}">➕ Add New Complaint</a>
+            <a class="nav-card" th:href="@{/reports}">📊 Generate Reports</a>
+            <a class="nav-card" th:href="@{/logout}">🚪 Logout</a>
+        </div>
+    </div>
+</body>
+</html>
+
+ 
